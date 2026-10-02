@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Login</title>
+</head>
+<body style="display:flex; justify-content:center; align-items:center; height:100vh; margin:0; font-family:Arial;">
+
+<div style="text-align:center;">
+
+	<h3>You need to login because<br> this resource is protected</h3>
+	
+	<div id =credentiale> Introdu credentiale valide </div>
+
+    <input type="text" id="username" placeholder="Username" style="margin:5px; padding:8px;"><br>
+    <input type="password" id="password" placeholder="Password" style="margin:5px; padding:8px;"><br>
+
+    <button onclick="login()" style="padding:8px 16px;">Login</button>
+
+    <p id="message"></p>
+</div>
+
+<script>
+
+// Wrapper pentru fetch cu Basic Auth
+function authFetch(url, options = {}) 
+{
+    const credentials = localStorage.getItem("auth");
+    if (!credentials) {
+        throw new Error("Nu esti logat!");
+    }
+
+    return fetch(url, {
+        ...options,
+        headers: {
+            ...(options.headers || {}),
+            "Authorization": `Basic ${credentials}`
+        }
+    });
+}
+
+
+function login() 
+{
+    const user = document.getElementById("username").value;
+    const pass = document.getElementById("password").value;
+
+    if (!user || !pass) {
+        document.getElementById("message").innerText = "Completează user și parolă!";
+        return;
+    }
+
+    // Encode username:password în Base64
+    const credentials = btoa(`${user}:${pass}`);
+
+    // Test request catre resursa protejata
+    fetch("http://localhost:9090/test/motanel", {
+        method: "GET",
+        headers: {
+            "Authorization": `Basic ${credentials}`
+        }
+    })
+    .then(res => 
+	{
+        if (res.redirected) {
+            document.getElementById("message").innerText = "Login OK";
+
+            // Salvăm credentialele codificate ca să le folosim ulterior
+            localStorage.setItem("auth", credentials);
+			window.location.href=res.url;
+			
+			
+            // Exemplu de folosire authFetch pentru alt request
+			/*
+            authFetch("https://api.exemplu.com/data")
+                .then(r => r.json())
+                .then(data => console.log("Date de la /data:", data))
+                .catch(err => console.error(err));
+			*/
+
+        } 
+		else if (res.ok)
+			{
+				console.log("Raspunsul a fost ok");
+			}
+		else 
+            document.getElementById("message").innerText = "Login failed ";
+        
+    })
+    .catch(err => {// aici in caz ca requestul nu a primit raspuns
+        console.error(err);
+        document.getElementById("message").innerText = "Eroare la request";
+    });
+}
+</script>
+
+</body>
+</html>

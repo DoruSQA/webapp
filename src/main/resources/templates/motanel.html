@@ -1,0 +1,861 @@
+<!DOCTYPE html>
+	<html>
+		<head>
+			<style>
+				
+			</style>
+		</head>
+
+
+		<body>
+			<canvas id="re" width="1300" height="500" style="border: 2px solid black;"></canvas>
+
+
+		<script>
+	let canvas = document.getElementById("re"); // aici avem canvasul
+	let ctx = canvas.getContext("2d"); // aici avem contextul din canvas
+	const map_width=3002; // px
+	
+	class Platforma
+	{
+		constructor ( X1,X2,x1,x2,y1,y2,nume)
+		  {
+			this.X1=X1;
+			this.X2=X2;
+			this.x1=x1;
+			this.x2=x2;
+			this.y1=y1;
+			this.y2=y2;
+			this.nume=nume;
+		  }
+
+	}
+	
+	const lungime = 60;
+
+const platforma1_X1 = 3;
+const platforma1_X2 = 378;
+const platforma1_x1 = platforma1_X1 + (platforma1_X2 - platforma1_X1 - lungime) / 2;
+const platforma1_x2 = platforma1_x1 + lungime;
+let platforma1 = new Platforma(platforma1_X1, platforma1_X2, platforma1_x1, platforma1_x2, 400, 400, "static1");
+
+// platforma2
+const platforma2_X1 = platforma1_X2;
+const platforma2_X2 = platforma2_X1 + 375;
+const platforma2_x1 = platforma2_X1 + (platforma2_X2 - platforma2_X1 - lungime) / 2;
+const platforma2_x2 = platforma2_x1 + lungime;
+let platforma2 = new Platforma(platforma2_X1, platforma2_X2, platforma2_x1, platforma2_x2, 380, 340, "sus-jos");
+
+// platforma3
+const platforma3_X1 = platforma2_X2;
+const platforma3_X2 = platforma3_X1 + 375;
+const platforma3_x1 = platforma3_X1 + (platforma3_X2 - platforma3_X1 - lungime) / 2;
+const platforma3_x2 = platforma3_x1 + lungime;
+let platforma3 = new Platforma(platforma3_X1, platforma3_X2, platforma3_x1, platforma3_x2, 300, 300, "st-dr");
+
+// platforma4
+const platforma4_X1 = platforma3_X2;
+const platforma4_X2 = platforma4_X1 + 375;
+const platforma4_x1 = platforma4_X1 + (platforma4_X2 - platforma4_X1 - lungime) / 2;
+const platforma4_x2 = platforma4_x1 + lungime;
+let platforma4 = new Platforma(platforma4_X1, platforma4_X2, platforma4_x1, platforma4_x2, 280, 230,"oblic-stdr");
+
+// platforma5
+const platforma5_X1 = platforma4_X2;
+const platforma5_X2 = platforma5_X1 + 375;
+const platforma5_x1 = platforma5_X1 + (platforma5_X2 - platforma5_X1 - lungime) / 2;
+const platforma5_x2 = platforma5_x1 + lungime;
+let platforma5 = new Platforma(platforma5_X1, platforma5_X2, platforma5_x1, platforma5_x2, 200, 200, "rotatie");
+
+// platforma6
+const platforma6_X1 = platforma5_X2;
+const platforma6_X2 = platforma6_X1 + 375;
+const platforma6_x1 = platforma6_X1 + (platforma6_X2 - platforma6_X1 - lungime) / 2;
+const platforma6_x2 = platforma6_x1 + lungime;
+let platforma6 = new Platforma(platforma6_X1, platforma6_X2, platforma6_x1, platforma6_x2, 170, 170, "cand-st-cand-dr");
+
+// platforma7
+const platforma7_X1 = platforma6_X2;
+const platforma7_X2 = platforma7_X1 + 375;
+const platforma7_x1 = platforma7_X1 + (platforma7_X2 - platforma7_X1 - lungime) / 2;
+const platforma7_x2 = platforma7_x1 + lungime;
+let platforma7 = new Platforma(platforma7_X1, platforma7_X2, platforma7_x1, platforma7_x2, 140, 140,"invizibil");
+
+// platforma8
+const platforma8_X1 = platforma7_X2;
+const platforma8_X2 = platforma8_X1 + 375;
+const platforma8_x1 = platforma8_X1 + (platforma8_X2 - platforma8_X1 - lungime) / 2;
+const platforma8_x2 = platforma8_x1 + lungime;
+let platforma8 = new Platforma(platforma8_X1, platforma8_X2, platforma8_x1, platforma8_x2, 440, 440,"lift");
+
+
+
+	const a = [platforma1,platforma2,platforma3,platforma4,platforma5,platforma6,platforma7,platforma8];
+	
+	let j=0, dj=-0.5, z=0; dz=1, k =0, dk=0.005, p=0, dp=-0.5;
+
+	let floor1=450; // defalult
+
+	let cameraOffsetX = 0;
+	let platformVisible=true;
+	
+	let Px = 50, Py = 450;
+	let VitezaX=0,VitezaY=0;
+	let dt = 1 / 60;
+
+	let gravityY = 7;
+	let keys = {}; // avem un obiect keys, la care ii vom adauga dinamic propietati si metode... (dupa caz)
+
+	document.addEventListener("keydown", (e) => keys[e.code] = true);
+	document.addEventListener("keyup", (e) => keys[e.code] = false);
+
+function cerc(x, y, radius,z=0,width=0,height=0,health_remain=0,full_health=0) 
+{
+   if(z==0)
+   {
+    ctx.beginPath();
+    ctx.arc(x, y, radius, 0, 2 * Math.PI);
+    ctx.stroke();
+   }
+else if (z==1)
+    {
+
+	ctx.beginPath();
+    	ctx.arc(x, y, radius, 0, 2 * Math.PI);
+    	ctx.stroke();
+
+	ctx.beginPath();
+	ctx.strokeRect(x-30,y-2*radius,width,height);
+	//ctx.moveTo(x,y-2*radius); //starting point
+	const healthWidth= health_remain/full_health*width;
+	ctx.fillStyle="green";
+	ctx.fillRect(x-30,y-2*radius,healthWidth,height);
+    }
+}
+
+function togglePlatform()
+{
+	platformVisible=!platformVisible;
+}
+window.setInterval(togglePlatform,4000);
+function platformaDesen (x1,x2,y1,y2=0,p=0)
+{
+	ctx.save()
+	if (p==0)
+	   {
+		ctx.beginPath();     
+		ctx.moveTo(x1, y1);     
+		if(y2==0)
+			ctx.lineTo(x2, y1);
+		else // y2!=0
+			ctx.lineTo(x2, y2);
+		ctx.stroke();          
+	   }
+	else if (p==5)
+	   {
+		ctx.beginPath();     
+		ctx.lineWidth=8;
+		ctx.strokeStyle="black";
+		ctx.moveTo(x1,y1);
+		ctx.lineTo(x2,y2);    
+		ctx.stroke();  
+	   }
+	else // p!=0
+ 	   {
+		ctx.beginPath();     
+		ctx.lineWidth=8;
+		ctx.strokeStyle="black";
+		ctx.moveTo(x1,y1);
+		ctx.lineTo(x2,y1);    
+		ctx.stroke();  
+	   }
+	ctx.restore();
+}
+
+function floor_update()
+{
+	if (Px>=platforma1.x1 && Px<=platforma1.x2)
+	   	{
+			if(Py<platforma1.y1)
+		   		floor1=platforma1.y1-20;
+			else if (Py>platforma1.y1 && Py<platforma1.y1+20)
+		   		VitezaY=VitezaY*(-1);
+	   	}
+	 
+
+	else if (Px>=platforma2.x1 && Px<=platforma2.x2)
+	   	{
+			if(Py<platforma2.y1+j)
+		   		floor1=platforma2.y1+j-20;
+			else if (Py>platforma2.y1+j && Py<platforma2.y1+j+20)
+		   		VitezaY=VitezaY*(-1);
+	   	}
+	     
+	
+	
+	else if (Px >= platforma3.X1 + z && Px <= platforma3.X1 + z + 60)
+		{
+   		 	if (Py < platforma3.y1 && Py> platforma3.y1-30)
+		    {
+      		 	 	floor1 = platforma3.y1 - 20;
+			if (!(keys.KeyA) && !(keys.KeyD)) 
+			 	Px = platforma3.X1 + z+30;
+
+		    }
+   			else if (Py>platforma3.y1 && Py<platforma3.y1+20)
+		   		VitezaY=VitezaY*(-1);
+		  }
+
+	
+	else if (Px>=Dx1 && Px<=Dx2)
+	   	{
+			if(Py<Dy1&&Py>Dy2-30)
+			{
+		   	floor1=Dy1-25;
+		   if (!(keys.KeyA) && !(keys.KeyD) && !(keys.Space) )
+			{
+			 	Px=Dx1+20;
+				Py=Dy1-25;
+			}
+		}
+			else if (Py>Dy2 && Py<Dy1+20)
+				VitezaY=VitezaY*(-1);
+	   	}
+	
+	else if ( (Px>=platforma5.x1 && Px<= x) || (Px>=x && Px<=platforma5.x2) )
+	   {
+		if(Py<=platforma5.y1 && y<=platforma5.y1)
+		   floor1=y; 
+		else if (Py<=platforma5.y1 && y>platforma5.y1)
+		   floor1=450; //default value
+		else if (Py>platforma5.y1 && Py<platforma5.y1+30)
+		   VitezaY=VitezaY*(-1);
+	   }
+	else if ( (Px>=platforma6.x1 && Px<= xx) || (Px>=xx && Px<=platforma6.x2) )
+	   {
+		if(Py<=platforma6.y1)
+		   floor1=platforma6.y1 -20;
+		else if (Py>platforma6.y1 && Py<platforma6.y1+20)
+		   VitezaY=VitezaY*(-1);
+	   }
+	else if (Px>=platforma7.x1 && Px<=platforma7.x2 &&platformVisible)
+	   {
+		if(Py<platforma7.y1)
+		   floor1=platforma7.y1-20;
+		else if (Py>platforma7.y1 && Py<platforma7.y1+20)
+		   VitezaY=VitezaY*(-1);
+	   }
+	else if (Px>=platforma8.x1 && Px<=platforma8.x2)
+	   {
+		if(Py<platforma8.y1+p)
+		   floor1=platforma8.y1+p-25;
+		else if (Py>platforma8.y1+p && Py<platforma8.y1+p+20)
+		   VitezaY=VitezaY*(-1);
+	   }
+	else
+	{
+		floor1=450; // default value
+	}
+	
+}
+
+function respawnFall()
+{
+	if(Px>platforma1.X2 && Px<platforma8.x1)	
+	   if(Py>440)	
+	     {
+		Px= 50; 
+		Py = 450;
+	     }
+
+}
+
+function solColide() {
+    if (Py >= floor1) {
+        Py = floor1;
+          VitezaY=0;
+	
+    }
+}
+
+function checkBoundary()
+{
+
+	if(Px<50)
+	   Px=50;
+	if(Px>=map_width-30)
+	   Px=map_width-30; // r=30;
+
+}
+
+function moveKeys()
+{
+	if (keys.KeyA) 
+		VitezaX = -200;
+	else if (keys.KeyD) 
+		VitezaX = 200;
+	else 
+		VitezaX = 0;
+
+	if (keys.Space && Py === floor1) 
+		VitezaY = -430;
+	
+	if(keys.KeyT)
+		{
+			Px=2800;
+			Py=450;
+		}
+	VitezaY += gravityY;
+	
+	Px += VitezaX * dt;
+	Py += VitezaY * dt;
+
+}
+
+
+function camera2d()
+{
+	cameraOffsetX = Px - canvas.width / 2;	
+        cameraOffsetX = Math.max (0, Math.min(cameraOffsetX, map_width-canvas.width) );
+	checkBoundary();
+}
+function clear()
+{
+	ctx.clearRect(0, 0, canvas.width, canvas.height);
+}
+let x,xx,yy,y,l=1;
+function rotatie(i)
+{
+	 
+       x=Math.cos(i* Math.PI/180)*60+platforma5.x1;
+       y=Math.sin(i* Math.PI/180)*60+platforma5.y1;
+      
+	ctx.beginPath();
+    	ctx.moveTo(platforma5.x1- cameraOffsetX, platforma5.y1); // de la origine 
+    	ctx.lineTo(x-cameraOffsetX, y);
+    	ctx.stroke();
+
+}
+function rotatie2(i)
+{
+	 
+       xx=Math.cos(i* Math.PI/180)*60+platforma6.x1;
+       yy=Math.sin(i* Math.PI/180)*60+platforma6.y1;
+      
+	ctx.beginPath();
+    	ctx.moveTo(platforma6.x1- cameraOffsetX, platforma6.y1); // de la origine 
+    	ctx.lineTo(xx-cameraOffsetX, platforma6.y1);
+    	ctx.stroke();
+
+}
+//let portalX;
+//let portalY;
+function deseneazaPortal(portalX,portalY) {
+    //portalX = map_width - 50 - cameraOffsetX;
+    //portalY = 50;               
+    const radiusX = 20;          
+    const radiusY = 40;         
+
+    // Salvează contextul pentru a nu afecta alte desene
+    ctx.save();
+
+    // Setează efect de glow
+    ctx.shadowColor = "cyan";
+    ctx.shadowBlur = 25;
+
+    // Desenează ovalul (portalul)
+    ctx.beginPath();
+    ctx.ellipse(portalX, portalY, radiusX, radiusY, 0, 0, 2 * Math.PI);
+    ctx.fillStyle = "darkcyan";
+    ctx.fill();
+    ctx.strokeStyle = "cyan";
+    ctx.lineWidth = 4;
+    ctx.stroke();
+
+    // Revine la setările normale
+    ctx.restore();
+}
+
+let finishRound=false;
+let round=1;
+function portalEnter()
+{
+	if(Px >= map_width-50 && Px <= map_width)
+		if (Py <= 200 )
+		   {
+		      finishRound = true;
+		      Px = 60;
+		      Py = 450;
+		      round++;
+		      console.log("Ai intrat în portal! Round:", round); // test
+		      animate2();
+		  }
+	
+}
+function swapRand()
+{
+	let c,b;
+		//c=Math.trunc(Math.random()*6)+1;
+  		//b= Math.trunc(Math.random()*6)+1;
+
+	swapp(a[0],a[2]);
+	console.log("Swap facut");
+
+}
+
+function infoAdd (P)
+{
+ctx.save();
+		ctx.beginPath();     
+		ctx.lineWidth=2;
+		ctx.strokeStyle="blue";
+		ctx.moveTo(P.X1-cameraOffsetX,0);
+		ctx.lineTo(P.X1-cameraOffsetX,450);    
+		ctx.stroke();  
+		ctx.moveTo(P.X2-cameraOffsetX,0);
+		ctx.lineTo(P.X2-cameraOffsetX,490);    
+		ctx.stroke(); 
+	ctx.font = "20px Arial";
+	ctx.fillStyle = "black";
+	ctx.fillText(P.nume, P.x1-cameraOffsetX, 60);	
+	ctx.fillStyle = "green";
+	ctx.fillText(P.x1 + " si " + P.x2, P.x1 - cameraOffsetX, 80);// x,y poz
+ctx.restore();
+
+}
+function swapp(d, b) {
+	let tempX1 = d.X1;
+	let tempX2 = d.X2;
+	let tempx1 = d.x1;
+	let tempx2 = d.x2;
+	let tempNume = d.nume;
+
+	let tempY1 = d.Y1;
+	let tempY2 = d.Y2;
+	let tempy1 = d.y1;
+	let tempy2 = d.y2;
+
+	d.X1 = b.X1;
+	d.X2 = b.X2;
+	d.x1 = b.x1;
+	d.x2 = b.x2;
+	d.Y1 = b.Y1;
+	d.Y2 = b.Y2;
+	d.y1 = b.y1;
+	d.y2 = b.y2;
+	d.nume = b.nume;
+
+	b.X1 = tempX1;
+	b.X2 = tempX2;
+	b.x1 = tempx1;
+	b.x2 = tempx2;
+	b.Y1 = tempY1;
+	b.Y2 = tempY2;
+	b.y1 = tempy1;
+	b.y2 = tempy2;
+	b.nume = tempNume;
+}
+
+let Dx1,Dx2,Dy1,Dy2;
+
+let oprireAnimatie;
+let tr=true;
+function animate() 
+{
+	clear(); 
+	moveKeys();		
+	camera2d();
+
+ 	
+//-----------------------------------------------sus-jos
+	if(platforma2.y1+j<platforma2.y2)   
+	   dj=dj*(-1);
+	if(platforma2.y1+j>platforma2.y1)
+	   dj=dj*(-1);
+//--------------------------------------------
+
+//-----------------------------------------------stanga-dr
+	if(platforma3.X1+z+60>platforma3.X2)  
+	   dz=dz*(-1);
+	if(platforma3.X1+z<platforma3.X1)
+	   dz=dz*(-1);
+//--------------------------------------------
+
+//-----------------------------------------------oblic_st - oblic_dr
+	if (k >= 1) 
+	    {
+   		 k = 1;
+   		 dk *= -1;
+	    }
+ 	else if (k <= 0) 
+	   {
+    		k = 0;
+    		dk *= -1;
+	   }
+
+//--------------------------------------------
+	if(l>=360)
+	   l=1;
+
+
+//--------------------------------------------platforma 7
+	if(platforma1.y1+p<200)
+		dp=dp*(-1);
+	if (platforma1.y1+p>platforma1.y1)
+		dp=dp*(-1);
+	  
+	
+        cerc(Px- cameraOffsetX, Py, 20); // player
+	for (let i=0; i<=7; i++)
+	   {
+		if(a[i].nume =="lift")
+		{
+			
+			platformaDesen(a[i].x1-cameraOffsetX, a[i].x2-cameraOffsetX,a[i].y1+p,0,1);
+			platformaDesen( (a[i].x2+a[i].x1)/2- cameraOffsetX, (a[i].x2+a[i].x1)/2- cameraOffsetX, a[i].y1+p, 450,5 );//450 defalult floor value
+			//infoAdd(a[i]);
+		}
+		if(a[i].nume=="sus-jos")
+		{
+			
+			platformaDesen(a[i].x1-cameraOffsetX, a[i].x2-cameraOffsetX, a[i].y1+j);
+			//infoAdd(a[i]);
+			//console.log(a[i].X1,a[i].X2,a[i].y1,a[i].y2,a[i].nume);
+		}
+		if(a[i].nume=="st-dr")
+		{
+			
+			platformaDesen(a[i].X1+z-cameraOffsetX, a[i].X1+z-cameraOffsetX+60,a[i].y1);
+			//infoAdd(a[i]);
+			
+		}
+		if (a[i].nume == "oblic-stdr") 
+		{
+   			 // Start point on the path
+    			 Dx1 = (a[i].X2 - a[i].X1) * k + a[i].X1;
+    			 Dy1 = (a[i].y2 - a[i].y1) * k + a[i].y1;
+
+    			// Direction vector
+    			let dx = a[i].X2 - a[i].X1;
+    			let dy = a[i].y2 - a[i].y1;
+    			let len = Math.sqrt(dx * dx + dy * dy);
+
+    			// Normalize and scale to 60px
+   			 let offsetX = (dx / len) * 60;
+   			 let offsetY = (dy / len) * 60;
+
+   			 Dx2 = Dx1 + offsetX;
+    			 Dy2 = Dy1 + offsetY;
+
+   			 platformaDesen(Dx1 - cameraOffsetX, Dx2 - cameraOffsetX, Dy1, Dy2);
+			//infoAdd(a[i]);
+		}
+		if (a[i].nume=="rotatie")
+		{
+			
+			rotatie(l);
+			//infoAdd(a[i]);
+		}
+		if (a[i].nume=="cand-st-cand-dr")
+		{
+			
+			rotatie2(l);
+			//infoAdd(a[i]);
+		}
+		if (a[i].nume=="invizibil")
+		{
+			
+			if(platformVisible)
+			platformaDesen(a[i].x1-cameraOffsetX, a[i].x2-cameraOffsetX,a[i].y1);
+			//infoAdd(a[i]);
+		}
+		if (a[i].nume == "static1")
+			{
+			platformaDesen(a[i].x1 - cameraOffsetX, a[i].x2 - cameraOffsetX, a[i].y1);
+			//infoAdd(a[i]);
+			//console.log(a[i].X1, a[i].X2,a[i].y1,a[i].y2,a[i].nume);
+			}
+	   }
+	
+	j+=dj; // delta j
+	z+=dz; // delta z
+	k+=dk // delta k
+	l++;
+	p+=dp; // delta p
+	
+	deseneazaPortal(map_width - 50 - cameraOffsetX,50);
+	portalEnter()
+
+	if (finishRound)
+	  {
+	    cancelAnimationFrame(oprireAnimatie);
+	  
+	  }
+	
+	finishRound=false;
+
+     	floor_update();
+	solColide();
+	
+	respawnFall();
+	
+	oprireAnimatie=requestAnimationFrame(animate);
+}
+
+animate();
+
+function desenTerenOblic()
+{
+	let x1=canvas.width/2+60;
+	let x2=canvas.width/2+600;
+	ctx.beginPath();
+	ctx.moveTo(x1,430) //x1=360,y1=430
+	ctx.lineTo(x2,330) //x2=720, y2=330
+	ctx.stroke(); // pt desen
+
+//---------------------------------------------------------------
+	let m=(330-430)/(x2-x1);
+	let b=430-m*x1;
+	
+	if(Py<=m*Px+b && Py>=m*Px+b-50 && Px>=x1 && Px<=x2)
+	   floor1=(m*Px+b)-23;
+	if(Px<(x1) || Px>x2)
+	   floor1 = 450;// reset 
+//----------------------------------------------------------------
+}
+function desenTerenSinusoidal() {
+    ctx.beginPath();
+    
+    let amplitude = 30;     // înălțimea undei
+    let frequency = 0.02;   // cât de dese sunt valurile
+    let offsetY = 400;      // poziția de bază pe axa Y
+
+    ctx.moveTo(0, offsetY);
+
+    for (let x = 0; x <= canvas.width/2; x++) {
+        let y = offsetY + Math.sin(x * frequency) * amplitude;
+        ctx.lineTo(x, y);
+    }
+
+    ctx.stroke();
+      
+
+    // ---------------------------------------------------------------
+    // Detecție de coliziune pentru jucător
+    let ySin = offsetY + Math.sin(Px * frequency) * amplitude;
+
+    if (Py >= ySin - 50 && Py <= ySin && Px>=0 && Px <= canvas.width/2) 
+        floor1 = ySin - 23;
+     //if(Px>=canvas.width/2)
+        //floor1 = 450; // reset, e în aer
+  
+    // ---------------------------------------------------------------
+}
+let finishRound2=false;
+function portalEnter2()
+{
+	if(Px >= 1200-100 && Px <= 1200+100)
+		if (Py <= 200 )
+		   {
+		      finishRound2 = true;
+		      Px = 60;
+		      Py = 450;
+		      // round++;
+		      //console.log("Ai intrat în portal! Round:", round); // test
+			floor1 = 450;
+		      animate3();
+		  }
+	
+}
+
+function fallUpRespawn()
+{
+ Px = 50, Py = 250;
+}
+let zj=true;
+function animate2()
+{
+	clear();
+	cancelAnimationFrame(oprireAnimatie);
+	moveKeys();
+	if(zj)
+	{
+		fallUpRespawn();
+		zj=false;
+	}
+	cerc(Px, Py, 20);//player
+
+	//cerc(canvas.width-300, 450, 20); //enemy
+	desenTerenOblic();
+	desenTerenSinusoidal();
+	deseneazaPortal(1200,50);
+
+	portalEnter2()
+	solColide();
+	oprireAnimatie2=requestAnimationFrame(animate2);
+}
+let oprireAnimatie2=0;
+let Ex,Ey,procent=0.1, avpro=0.003;
+let Mx,My,time=0,Vx,Vy,Pxx,Pyy;
+
+canvas.addEventListener("mousedown", function(event) {
+    if (event.button === 0) 
+   {
+        const rect = canvas.getBoundingClientRect();
+        Mx = event.clientX - rect.left;
+        My = event.clientY - rect.top;
+	time=15;
+	Pxx=Px;
+	Pyy=Py;
+	Vx=(Mx-Pxx)/time;
+	Vy=(My-Pyy - (1/2*gravityY*time*time) )/time;
+	trage=true;
+	
+    }
+});
+let trage = false;
+function proiectil(i) 
+{
+	    ctx.save();
+		let x = Pxx+Vx*i;
+	    	let y = Pyy+Vy*i+(1/2*gravityY*i*i)
+	    	let r =5;
+		ctx.beginPath();
+            	ctx.arc(x, y, r, 0, 2 * Math.PI);
+            	ctx.fillStyle = "blue";
+           	ctx.fill();
+            	ctx.stroke();
+	   ctx.restore();
+            
+}
+let i=0,di=0.2;
+let ii=0, dii=0.2;
+
+function deseneazaRomb(centruX, centruY, latime, inaltime) 
+{
+  ctx.save();
+  ctx.beginPath();
+  ctx.moveTo(centruX, centruY - inaltime / 2); // vârful de sus
+  ctx.lineTo(centruX + latime / 2, centruY);   // dreapta
+  ctx.lineTo(centruX, centruY + inaltime / 2); // jos
+  ctx.lineTo(centruX - latime / 2, centruY);   // stânga
+  ctx.closePath();
+
+  ctx.fillStyle = "red";
+  ctx.fill();
+
+  //ctx.strokeStyle = "black";
+  ctx.stroke();
+  ctx.restore();
+
+	dmgEnemyTaken(centruX,centruY - inaltime / 2,centruX + latime / 2,centruY,centruX,centruY + inaltime / 2,centruX - latime / 2,centruY);
+}
+
+function dmgEnemyTaken(susX, susY, dreaptaX, dreaptaY, josX, josY, stangaX, stangaY) 
+{
+    if (Ex >= stangaX && Ex <= dreaptaX && Ey >= susY &&Ey <= josY) 
+    {
+        healthEnemy-=25;
+    }
+   if (Px >= stangaX && Px <= dreaptaX && Py >= susY &&Py <= josY) 
+    {
+        healthPlayer-=25;
+    }
+}
+let healthEnemy=100;
+let healthPlayer=100;
+let lansare = false;
+let time2=0;
+
+function animate3()
+{
+	clear();
+	cancelAnimationFrame(oprireAnimatie2);
+	moveKeys();
+
+	cerc(Px, Py, 20,1,60,10,healthPlayer,100);//player
+	
+	if (healthEnemy==0)
+	   {
+		ctx.font = "50px Arial";            
+		ctx.fillStyle = "black";          
+		ctx.fillText("You Won !", canvas.width/2, canvas.height/2);  
+		return;
+	    }
+	if (healthPlayer==0)
+	   {
+		ctx.font = "50px Arial";            
+		ctx.fillStyle = "black";          
+		ctx.fillText("You Lost !", canvas.width/2, canvas.height/2);  
+		return;
+	    }
+
+	if(procent>=1 || procent<=0)
+		avpro=-avpro;
+	procent+=avpro;	
+	
+	if (i>=time)
+	  {
+	   deseneazaRomb(Pxx+Vx*i,Pyy+Vy*i+(1/2*gravityY*i*i),80,80);
+	   i=0;
+	   trage=false;
+	   
+	  }
+	 if(i>=0 && trage)
+	  {
+		proiectil(i);	
+		i+=di;
+	  }
+	//function cerc(x, y, radius,z=0,width=0,height=0,health_remain=0,full_health=0) 
+
+	Ex= (canvas.width-700)-(canvas.width/2)*procent +canvas.width/2;
+	Ey= 450;
+	cerc(Ex, Ey, 20,1,60,10,healthEnemy,100); //enemy
+	
+	if(Math.hypot(Ex-Px,Ey-Py)<=300)
+	   {
+		PPx=Px;
+		PPy=Py;
+		EEx=Ex;
+		EEy=Ey;
+		time2=15;
+		VVx=(PPx-EEx)/time2;
+		VVy=( (PPy-EEy)-(1/2*gravityY*time2*time2) )/time2;
+		lansare=true;
+	   }
+	if (ii>=time2)
+	  {
+	   deseneazaRomb(EEx + VVx * ii, EEy + VVy * ii + (1 / 2 * gravityY * ii * ii), 80, 80);
+	   ii=0;
+	   lansare=false;
+	   
+	  }
+	if(ii>=0 && lansare)
+	  {
+		lansareProiectilEnemy(ii);	
+		ii+=dii;
+	  }
+
+	solColide();
+	requestAnimationFrame(animate3);
+}
+let EEx,EEy, VVx,VVy;
+
+function lansareProiectilEnemy(ii)
+{
+	    ctx.save();
+		let xx = EEx +ii*VVx
+	    	let yy = EEy+VVy*ii+(1/2*gravityY*ii*ii)
+	    	let r =5;
+		ctx.beginPath();
+            	ctx.arc(xx, yy, r, 0, 2 * Math.PI);
+            	ctx.fillStyle = "red";
+           	ctx.fill();
+            	ctx.stroke();
+	   ctx.restore();
+}
+
+	</script>	
+
+		</body>
+	</html>

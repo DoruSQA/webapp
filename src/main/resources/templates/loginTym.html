@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Login</title>
+</head>
+<body style="display:flex; justify-content:center; align-items:center; height:100vh; margin:0; font-family:Arial;">
+
+<div style="text-align:center;">
+
+    <h3>You need to login because<br> this resource is protected</h3>
+
+    <div style="color:red;">Enter valid credentials </div>
+
+    <form action="/loginCheck" method="post">
+        <input type="text" name="username" placeholder="Username" style="margin:5px; padding:8px;"><br>
+        <input type="password" name="password" placeholder="Password" style="margin:5px; padding:8px;"><br>
+        <button type="submit" style="padding:8px 16px;">Login</button>
+    </form>
+
+</div>
+
+</body>
+</html>
+<!-- daca e form => application/x-www-form-urlencoded
+     daca e post request form => parametrii vor ajunge in body of the request
+	 daca e get request form => parametrii vor ajunge in link...  -->
+	 
+	 
+	 
+	 <!-- <p style="color:red;" th:if="${error}" th:text="${error}"></p> -->
+	 

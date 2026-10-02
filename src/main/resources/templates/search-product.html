@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Search Product</title>
+</head>
+<body>
+
+<h2>Search Product</h2>
+
+<input id="search" placeholder="Search name">
+<button onclick="search()">Search</button>
+
+<div id="results"></div>
+
+<script>
+async function search() {
+
+    const value = document.getElementById("search").value;
+
+    const response = await fetch(
+        `http://localhost:8080/api/products/search?name=${value}`
+    );
+
+    const products = await response.json();
+
+    let html = "";
+
+    products.forEach(p => {
+        html += `
+            <div style="border:1px solid black; margin:5px; padding:5px">
+                <b>Name:</b> ${p.name}<br>
+                <b>Category:</b> ${p.category}<br>
+                <b>Price:</b> ${p.price}
+            </div>
+        `;
+    });
+
+    document.getElementById("results").innerHTML = html;
+}
+</script>
+
+</body>
+</html>

@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Add Product</title>
+</head>
+<body>
+
+<h2>Add Product</h2>
+
+<input id="name" placeholder="Name"><br><br>
+<input id="category" placeholder="Category"><br><br>
+<input id="price" placeholder="Price"><br><br>
+
+<button onclick="save()">Save</button>
+
+<script>
+async function save() {
+
+    const product = {
+        name: document.getElementById("name").value,
+        category: document.getElementById("category").value,
+        price: document.getElementById("price").value
+    };
+
+    const response = await fetch("http://localhost:8080/api/products", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify(product)
+    });
+
+    const data = await response.json();
+    alert("Product saved with ID: " + data.id);
+}
+</script>
+
+</body>
+</html>

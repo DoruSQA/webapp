@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html>
+<head>
+</head>
+<body>
+
+<div id= "container_comun_pt_flexbox" style="display: flex; gap: 100px; margin-top: 40px;" >
+	<div id="re">
+			<h2>Introdu o tara:</h2>
+    	<input type="text" id="inputText" placeholder="Scrie o tara...">
+
+    	<button onclick="viaQueryParameter()">Afiseaza</button>
+
+    	<h3>Capitala este:</h3>
+
+    	<div id="output" style="border:1px solid black; padding:10px; min-height:10px; width:200px;"> Aici este rezultatul.......................</div>
+	</div>
+	<br>
+	<div id="record">
+	        <h2>Introdu un record:</h2>
+	        <input type="text" id="recordInputTara" placeholder="Tara...">
+			<p></p>
+			<input type="text" id="recordInputCapitala" placeholder="Capitala...">
+			<p></p>
+			<div id = "mesaj_asociat"> Validare Entry... </div>
+			<p></p>
+	        <button onclick = "addRecord()">Adauga record</button>
+			<!-- Links adaugate în dreapta -->
+			   <div style="text-align:right; margin-top:20px;">
+			       <a href="/homepage/admin">Admin</a><br>
+			       <a href="/homepage/client">Client</a>
+			   </div>
+	</div>
+</div>
+	<br>
+	<div id="ye">
+			<button onclick="retreiveALL()">Print all data</button>
+			<p></p>
+			<div id="zonaAfisare" style="border:1px solid black; padding:10px; min-height:10px; width:500px;"> </div>
+	</div>
+	
+<script>
+/*1. Trimitere input ca argument la o functie locala*/
+	function proceseaza_local()
+	{
+		let map = 	
+		{
+			Romania:"Bucuresti",
+			Spania:"Madrid",
+			Italia:"Rome",
+			Franta:"Paris",
+			"Marea Britanie":"Londra"
+		};
+		
+		 let input = document.getElementById("inputText").value.trim();
+		 let output = document.getElementById("output");
+		 
+		 if(map[input]===undefined)
+			output.innerText= "Nu exista in structura de date locala";
+		 else
+			output.innerText = map[input];
+	
+	}
+	
+  /*2. Event listener pe enter*/	
+		document.getElementById("inputText").addEventListener("keypress", function(event) {
+        if (event.key === "Enter") 
+            proceseaza_local();
+    });
+
+	
+	/*3. Trimitere input pe retea ca http request pt procesare pe partea de server backend, la un endpoint vaild*/
+	
+	/* as a path variable*/
+	function viaPathParameter() 
+	{
+	
+		const country = document.getElementById("inputText").value.trim();
+		const output = document.getElementById("output");
+
+		fetch(`/capitala/${encodeURIComponent(country)}`, {
+			method: "GET",
+			headers: {
+				"Accept": "application/json, text/plain"
+
+			}
+		})
+		.then(response => {
+			if (!response.ok) {
+				throw new Error("Eroare server");
+			}
+			console.log(response);
+			return response.json(); // transformare in JSON
+		})
+		.then(data => {
+			output.innerText = data.cv; 
+			console.log(data);
+		})
+		.catch(error => {
+			output.innerText = error.message;
+		});
+	   
+	
+	
+	}
+	
+	/*as a query parameter*/
+	function viaQueryParameter() 
+	{
+		const input = document.getElementById("inputText").value.trim();
+		const output = document.getElementById("output");
+
+		fetch(`/capitala?t2ra=${encodeURIComponent(input)}`, {
+	  	  method: "GET",
+	  	  headers: {
+	  	      "Accept": "application/json, text/plain"
+	  	  }
+		})
+		.then(response => {
+	 	   if (!response.ok) { // daca nu e in 200 series
+	  	      throw new Error("Sv Error");
+	  	  }
+	  	  return response.json(); 
+		})
+		.then(data => {
+		    output.innerText = data.cv; 
+			//console.log(data);
+		})
+		.catch(error => {
+			output.innerText = error.message;
+		});
+	}
+	
+	
+	/* Acum vreau sa iau toate inregistratile si sa le afisez */
+	function retreiveALL()
+	{
+	
+		const zonaAfisare = document.getElementById("zonaAfisare");
+
+		fetch(`/all/capitals`, {
+			method: "GET",
+			headers: {
+				"Accept": "application/json, text/plain"
+			}
+		})
+		.then(response => {
+			if (!response.ok) {
+				throw new Error("Eroare server");
+			}
+			//console.log(response);
+			return response.json(); // transformare in JSON
+		})
+		.then(data => {
+			zonaAfisare.innerHTML=""; // reset-ul
+			var count = 1;
+			for (let z in data)
+				{
+					 zonaAfisare.innerHTML +=count+ ". "+  z + " " + data[z] + "<br>";
+					 count++;
+				}
+			
+			//console.log(data);
+		})
+		.catch(error => {
+			zonaAfisare.innerText = error.message;
+		});
+		
+	}
+	
+	/* Add record */
+	function addRecord()
+	{
+		
+		const tara = document.getElementById("recordInputTara").value.trim();
+		const capitala = document.getElementById("recordInputCapitala").value.trim();
+		const txt = document.getElementById("mesaj_asociat");
+		
+		fetch("/add/entity", {
+		        method: "POST",
+		        headers: {
+		            "Content-Type": "application/json" /// Data format
+		        },
+		        body: JSON.stringify({ /// Actual data
+		            tara: tara,
+		            capitala: capitala
+		        })
+		    })
+			.then(response => {
+						if (!response.ok) {
+							throw new Error("Eroare server");
+						}
+						//console.log(response);
+						return response.text(); // transformare in txt
+					})
+		    .then(data => {
+		        //console.log(data);
+				if(data==="Success")
+					{
+						txt.style.color = "green";
+						txt.innerText=data;
+					}
+					
+				else
+					{
+						txt.style.color = "red";
+						txt.innerText=data;
+					}
+		    })
+			.catch(err => console.log(err) );
+		
+	}
+</script>	
+
+</body>
+</html>
